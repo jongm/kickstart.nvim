@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -99,7 +99,7 @@ vim.g.have_nerd_font = false
 --  For more options, you can see `:help option-list`
 
 -- Make line numbers default
--- vim.opt.number = true
+vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
 vim.opt.relativenumber = true
@@ -114,9 +114,9 @@ vim.opt.showmode = false
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
-vim.schedule(function()
-  vim.opt.clipboard = 'unnamedplus'
-end)
+-- vim.schedule(function()
+--   vim.opt.clipboard = 'unnamedplus'
+-- end)
 
 -- Enable break indent
 vim.opt.breakindent = true
@@ -194,6 +194,9 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Move focus to the upper window' })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -238,6 +241,100 @@ require('lazy').setup({
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
   -- keys can be used to configure plugin behavior/loading/etc.
+  --
+  {
+    'Vigemus/iron.nvim',
+    config = function()
+      local iron = require 'iron.core'
+      local view = require 'iron.view'
+      local common = require 'iron.fts.common'
+
+      iron.setup {
+        config = {
+          -- Whether a repl should be discarded or not
+          scratch_repl = true,
+          -- Your repl definitions come here
+          repl_definition = {
+            sh = {
+              -- Can be a table or a function that
+              -- returns a table (see below)
+              command = { 'zsh' },
+            },
+            python = {
+              command = { 'python3' }, -- or { "ipython", "--no-autoindent" }
+              format = common.bracketed_paste_python,
+              block_dividers = { '# %%', '#%%' },
+            },
+            lisp = {
+              command = { 'rlwrap', 'sbcl' },
+            },
+          },
+          -- set the file type of the newly created repl to ft
+          -- bufnr is the buffer id of the REPL and ft is the filetype of the
+          -- language being used for the REPL.
+          repl_filetype = function(bufnr, ft)
+            return ft
+            -- or return a string name such as the following
+            -- return "iron"
+          end,
+          -- How the repl window will be displayed
+          -- See below for more information
+          -- repl_open_cmd = view.bottom(40),
+          repl_open_cmd = view.split.vertical.botright(0.61903398875),
+
+          -- repl_open_cmd can also be an array-style table so that multiple
+          -- repl_open_commands can be given.
+          -- When repl_open_cmd is given as a table, the first command given will
+          -- be the command that `IronRepl` initially toggles.
+          -- Moreover, when repl_open_cmd is a table, each key will automatically
+          -- be available as a keymap (see `keymaps` below) with the names
+          -- toggle_repl_with_cmd_1, ..., toggle_repl_with_cmd_k
+          -- For example,
+          --
+          -- repl_open_cmd = {
+          --   view.split.vertical.rightbelow("%40"), -- cmd_1: open a repl to the right
+          --   view.split.rightbelow("%25")  -- cmd_2: open a repl below
+          -- }
+        },
+        -- Iron doesn't set keymaps by default anymore.
+        -- You can set them here or manually add keymaps to the functions in iron.core
+        keymaps = {
+          toggle_repl = '<space>rr', -- toggles the repl open and closed.
+          -- If repl_open_command is a table as above, then the following keymaps are
+          -- available
+          -- toggle_repl_with_cmd_1 = "<space>rv",
+          -- toggle_repl_with_cmd_2 = "<space>rh",
+          restart_repl = '<space>rR', -- calls `IronRestart` to restart the repl
+          send_motion = '<space>sc',
+          visual_send = '<space>sc',
+          send_file = '<space>sf',
+          send_line = '<space>sl',
+          send_paragraph = '<space>sp',
+          send_until_cursor = '<space>su',
+          send_mark = '<space>sm',
+          send_code_block = '<space>sb',
+          send_code_block_and_move = '<space>sn',
+          mark_motion = '<space>mc',
+          mark_visual = '<space>mc',
+          remove_mark = '<space>md',
+          cr = '<space>s<cr>',
+          interrupt = '<space>s<space>',
+          exit = '<space>sq',
+          clear = '<space>cl',
+        },
+        -- If the highlight is on, you can change how it looks
+        -- For the available options, check nvim_set_hl
+        highlight = {
+          italic = true,
+        },
+        ignore_blank_lines = true, -- ignore blank lines when sending visual select lines
+      }
+
+      -- iron also has a list of commands, see :h iron-commands for all available commands
+      vim.keymap.set('n', '<space>rf', '<cmd>IronFocus<cr>')
+      vim.keymap.set('n', '<space>rh', '<cmd>IronHide<cr>')
+    end,
+  },
   --
   -- Use `opts = {}` to automatically pass options to a plugin's `setup()` function, forcing the plugin to be loaded.
   --
@@ -620,6 +717,7 @@ require('lazy').setup({
       -- Diagnostic Config
       -- See :help vim.diagnostic.Opts
       vim.diagnostic.config {
+        --virtual_lines = true,
         severity_sort = true,
         float = { border = 'rounded', source = 'if_many' },
         underline = { severity = vim.diagnostic.severity.ERROR },
@@ -906,9 +1004,10 @@ require('lazy').setup({
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
       ---@diagnostic disable-next-line: missing-fields
-      require('tokyonight').setup {
+      require('kanagawa').setup {
         styles = {
           comments = { italic = false }, -- Disable italics in comments
+          transparency = true,
         },
       }
 
@@ -916,6 +1015,12 @@ require('lazy').setup({
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
       vim.cmd.colorscheme 'kanagawa-wave'
+      vim.cmd [[
+  highlight Normal guibg=none
+  highlight NonText guibg=none
+  highlight Normal ctermbg=none
+  highlight NonText ctermbg=none
+]]
     end,
   },
 
