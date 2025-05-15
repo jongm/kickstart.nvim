@@ -169,7 +169,7 @@ vim.opt.confirm = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uic sfkfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -241,7 +241,22 @@ require('lazy').setup({
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
   -- keys can be used to configure plugin behavior/loading/etc.
+  'gpanders/nvim-parinfer', -- Parenthesis for lisp languages
   --
+  -- {
+  --   'Olical/conjure',
+  --   ft = { 'clojure', 'fennel', 'python' }, -- etc
+  --   lazy = true,
+  --   init = function()
+  --     -- Set configuration options here
+  --     -- Uncomment this to get verbose logging to help diagnose internal Conjure issues
+  --     -- This is VERY helpful when reporting an issue with the project
+  --     -- vim.g["conjure#debug"] = true
+  --   end,
+  --
+  --   -- Optional cmp-conjure integration
+  --   dependencies = { 'PaterJason/cmp-conjure' },
+  -- },
   {
     'Vigemus/iron.nvim',
     config = function()
@@ -268,6 +283,14 @@ require('lazy').setup({
             lisp = {
               command = { 'rlwrap', 'sbcl' },
             },
+            clojure = {
+              command = { 'clj' },
+              -- command = function(meta)
+              --   local filepath = vim.api.nvim_buf_get(meta.current_bufnr)
+              --   vim.fn.exp
+              --   return { 'cabal', 'v2-repl', filename }
+              -- end,
+            },
           },
           -- set the file type of the newly created repl to ft
           -- bufnr is the buffer id of the REPL and ft is the filetype of the
@@ -280,7 +303,7 @@ require('lazy').setup({
           -- How the repl window will be displayed
           -- See below for more information
           -- repl_open_cmd = view.bottom(40),
-          repl_open_cmd = view.split.vertical.botright(0.61903398875),
+          repl_open_cmd = view.split.vertical.botright(0.40),
 
           -- repl_open_cmd can also be an array-style table so that multiple
           -- repl_open_commands can be given.
@@ -775,6 +798,10 @@ require('lazy').setup({
         --
         zls = {
           cmd = { '/usr/local/bin/zls' },
+        },
+
+        clojure_lsp = {
+          cmd = { '/usr/local/bin/clojure-lsp' },
         },
 
         lua_ls = {
