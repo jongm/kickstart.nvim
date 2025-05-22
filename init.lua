@@ -242,6 +242,11 @@ require('lazy').setup({
   -- with the first argument being the link and the following
   -- keys can be used to configure plugin behavior/loading/etc.
   'gpanders/nvim-parinfer', -- Parenthesis for lisp languages
+  {
+    'akinsho/git-conflict.nvim',
+    version = '*',
+    config = true,
+  },
   --
   -- {
   --   'Olical/conjure',
